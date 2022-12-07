@@ -43,13 +43,13 @@ typedef struct {
 typedef struct {
 	int speed;
 	int max_amp;
-	music_notelist_t *note_lists[MAX_NOTE_LISTS];
+	music_notelist_t note_lists[MAX_NOTE_LISTS];
 	int num_note_lists;
 } music_songdef_t;
 
 
-extern const music_songdef_t song_god_rest_ye_gentlemen;
+extern music_songdef_t song_god_rest_ye_gentlemen;
 
-int music_play_song(const music_songdef_t *song);
+int music_play_song(music_songdef_t *song);
 
 #endif

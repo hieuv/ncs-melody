@@ -39,23 +39,14 @@ const music_notedef_t god_rest_ye_gentlemen_bass[] = {
 	{NOTE_END, 0, 0},
 };
 
-
-music_notelist_t god_rest_ye_gentlemen_melodylist = {
-	.note_list = god_rest_ye_gentlemen_melody,
-	.instrument = 0,
-	.note_offset = 24,
-};
-
-music_notelist_t god_rest_ye_gentlemen_basslist = {
-	.note_list = god_rest_ye_gentlemen_bass,
-	.instrument = 1,
-	.note_offset = -12, 
-};
-
-const music_songdef_t song_god_rest_ye_gentlemen = {
+music_songdef_t song_god_rest_ye_gentlemen = {
 	.max_amp = 120,
-	.note_lists[1] = &god_rest_ye_gentlemen_melodylist,
-	.note_lists[0] = &god_rest_ye_gentlemen_basslist,
+	.note_lists[1].note_list = god_rest_ye_gentlemen_melody,
+	.note_lists[1].instrument = 0,
+	.note_lists[1].note_offset = 24,
+	.note_lists[0].note_list = god_rest_ye_gentlemen_bass,
+	.note_lists[0].instrument = 1,
+	.note_lists[0].note_offset = -12,
 	.num_note_lists = 2,
 	.speed = 60,
 };
@@ -67,46 +58,46 @@ static void fetch_note(const music_songdef_t *song, music_notelist_t *notelist, 
 	}
 }
 
-int music_play_song(const music_songdef_t *song)
+int music_play_song(music_songdef_t *song)
 {
 	int active_lists;
 	const music_notedef_t *current_note[MAX_NOTE_LISTS], *note;
 	printk("Playing song...\n");
 	for(int i = 0; i < song->num_note_lists; i++) {
-		song->note_lists[i]->active = true;
-		song->note_lists[i]->index = 0;
-		song->note_lists[i]->repeat_counter = 0;
+		song->note_lists[i].active = true;
+		song->note_lists[i].index = 0;
+		song->note_lists[i].repeat_counter = 0;
 	}
 	do {
 		active_lists = 0;
 		for(int nl = 0; nl < song->num_note_lists; nl++) {
-			if(song->note_lists[nl]->active) {
-				if(song->note_lists[nl]->index == 0 || song->note_lists[nl]->current_note_lifetime >= current_note[nl]->duration) {
+			if(song->note_lists[nl].active) {
+				if(song->note_lists[nl].index == 0 || song->note_lists[nl].current_note_lifetime >= current_note[nl]->duration) {
 					// Fetch a new note
-					note = current_note[nl] = &(song->note_lists[nl]->note_list[song->note_lists[nl]->index++]);
+					note = current_note[nl] = &(song->note_lists[nl].note_list[song->note_lists[nl].index++]);
 					if(note->note == NOTE_END) {
-						song->note_lists[nl]->active = false;
+						song->note_lists[nl].active = false;
 					} else if(note->note == NOTE_REP) {
-						if(++song->note_lists[nl]->repeat_counter <= note->duration) {
+						if(++song->note_lists[nl].repeat_counter <= note->duration) {
 							// Do another repeat, by reducing the note_list index
-							song->note_lists[nl]->index -= note->amp;
-							song->note_lists[nl]->current_note_lifetime = 1;
-							note = current_note[nl] =  &(song->note_lists[nl]->note_list[song->note_lists[nl]->index-1]);
-							fetch_note(song, song->note_lists[nl], note);
+							song->note_lists[nl].index -= note->amp;
+							song->note_lists[nl].current_note_lifetime = 1;
+							note = current_note[nl] =  &(song->note_lists[nl].note_list[song->note_lists[nl].index-1]);
+							fetch_note(song, &(song->note_lists[nl]), note);
 						} else {
 							// Abort the repeat, and let the index increase as normal
-							song->note_lists[nl]->repeat_counter = 0;
+							song->note_lists[nl].repeat_counter = 0;
 						}
 					} else {
-						printk("\nFetched note: note %i, dur %i amp %i, instr %i ", note->note, note->duration, note->amp, song->note_lists[nl]->instrument);
-						fetch_note(song, song->note_lists[nl], note);
+						printk("\nFetched note: note %i, dur %i amp %i, instr %i ", note->note, note->duration, note->amp, song->note_lists[nl].instrument);
+						fetch_note(song, &(song->note_lists[nl]), note);
 						/*if(note->note != NOTE_PAUSE) {
-							sg_play_note(note->note + song->note_lists[nl]->note_offset, (float)note->amp / (float)song->max_amp, song->note_lists[nl]->instrument);
+							sg_play_note(note->note + song->note_lists[nl].note_offset, (float)note->amp / (float)song->max_amp, song->note_lists[nl].instrument);
 						}*/
-						song->note_lists[nl]->current_note_lifetime = 1;
+						song->note_lists[nl].current_note_lifetime = 1;
 					}
 				} else {
-					song->note_lists[nl]->current_note_lifetime++;
+					song->note_lists[nl].current_note_lifetime++;
 				}
 				active_lists++;
 			}
