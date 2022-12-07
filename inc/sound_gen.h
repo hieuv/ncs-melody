@@ -4,7 +4,7 @@
 #include <zephyr.h>
 #include <nrfx_pwm.h>
 
-#define NUM_OSCILLATORS 4
+#define NUM_OSCILLATORS 16
 #define SG_ADSR_SUBDIV 100
 #define SG_SAMPLE_FREQ 31250
 #define SG_SAMPLES_PR_MS 31

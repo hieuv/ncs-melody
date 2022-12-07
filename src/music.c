@@ -2,6 +2,7 @@
 #include <sound_gen.h>
 
 const music_notedef_t god_rest_ye_gentlemen_melody[] = {
+	{NOTE_PAUSE, 64-4, 80},
 	{NOTE(N_C, 3), 4, 80},
 	{NOTE(N_C, 3), 4, 100},{NOTE(N_G, 3), 4, 100},{NOTE(N_G, 3), 4, 100},{NOTE(N_F, 3), 4, 100},
 	{NOTE(N_Eb, 3), 4, 100},{NOTE(N_D, 3), 4, 100},{NOTE(N_C, 3), 4, 100},{NOTE(N_Bb, 2), 4, 100},
@@ -22,7 +23,7 @@ const music_notedef_t god_rest_ye_gentlemen_melody[] = {
 };
 
 const music_notedef_t god_rest_ye_gentlemen_bass[] = {
-	{NOTE_PAUSE, 4, 80},
+	{NOTE_PAUSE, 64, 80},
 	{NOTE(N_D, 2), 8, 100},{NOTE(N_C, 3), 4, 100},{NOTE(N_E, 2), 4, 100},
 	{NOTE(N_C, 2), 8, 100},{NOTE(N_C, 2), 4, 100},{NOTE(N_G, 1), 4, 100},
 	{NOTE(N_Ab, 1), 4, 100},{NOTE(N_G, 1), 4, 100},{NOTE(N_C, 2), 4, 100},{NOTE(N_C, 2), 4, 100},
@@ -39,6 +40,11 @@ const music_notedef_t god_rest_ye_gentlemen_bass[] = {
 	{NOTE_END, 0, 0},
 };
 
+const music_notedef_t god_rest_ye_gentlemen_drum[] = {
+		{NOTE(N_C, 2), 8, 100},{NOTE(N_C, 2), 4, 100},{NOTE(N_C, 2), 4, 100},{NOTE_REP, 12, 3},
+		{NOTE_END, 0, 0},
+};
+
 music_songdef_t song_god_rest_ye_gentlemen = {
 	.max_amp = 120,
 	.note_lists[1].note_list = god_rest_ye_gentlemen_melody,
@@ -47,7 +53,10 @@ music_songdef_t song_god_rest_ye_gentlemen = {
 	.note_lists[0].note_list = god_rest_ye_gentlemen_bass,
 	.note_lists[0].instrument = 1,
 	.note_lists[0].note_offset = -12,
-	.num_note_lists = 2,
+	.note_lists[2].note_list = god_rest_ye_gentlemen_drum,
+	.note_lists[2].instrument = 2,
+	.note_lists[2].note_offset = 0,
+	.num_note_lists = 3,
 	.speed = 60,
 };
 
@@ -89,11 +98,8 @@ int music_play_song(music_songdef_t *song)
 							song->note_lists[nl].repeat_counter = 0;
 						}
 					} else {
-						printk("\nFetched note: note %i, dur %i amp %i, instr %i ", note->note, note->duration, note->amp, song->note_lists[nl].instrument);
+						//printk("\nFetched note: note %i, dur %i amp %i, instr %i ", note->note, note->duration, note->amp, song->note_lists[nl].instrument);
 						fetch_note(song, &(song->note_lists[nl]), note);
-						/*if(note->note != NOTE_PAUSE) {
-							sg_play_note(note->note + song->note_lists[nl].note_offset, (float)note->amp / (float)song->max_amp, song->note_lists[nl].instrument);
-						}*/
 						song->note_lists[nl].current_note_lifetime = 1;
 					}
 				} else {

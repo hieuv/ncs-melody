@@ -34,6 +34,11 @@ static float gen_func_sawtooth(sg_osc_state_t *state)
 	return ((float)state->phase_i / 32768.0f) - 1.0f;
 }
 
+static float gen_func_noise(sg_osc_state_t *state)
+{
+	return (float)(rand()%0x1000) *2.0f / (float)0x1000 - 1.0f;
+}
+
 static bool run_adsr_comp(sg_adsr_t *adsr, uint32_t t)
 {
 	static float tmp;
@@ -112,6 +117,14 @@ void sg_play_freq(float frequency, float amp, int instrument_index)
 				new_osc->adsr.r = 300;
 				new_osc->global_amplitude = 0.4f;
 				new_osc->func = gen_func_sawtooth;
+				break;
+			case 2:
+				new_osc->adsr.a = 30;
+				new_osc->adsr.d = 100;
+				new_osc->adsr.s = 0;
+				new_osc->adsr.r = 120;
+				new_osc->global_amplitude = 0.3f;
+				new_osc->func = gen_func_noise;
 				break;
 		}
 	}
