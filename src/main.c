@@ -15,6 +15,8 @@
 
 #define PWM_COUNTERTOP  255
 
+#define PWM_BUF_LENGTH 1000
+
 K_SEM_DEFINE(sem_update_pwm_buf, 0, 1);
 
 static nrfx_pwm_t my_pwm = NRFX_PWM_INSTANCE(1);
@@ -62,7 +64,6 @@ static int pwm_init(void)
 	IRQ_CONNECT(PWM1_IRQn, 0, nrfx_pwm_1_irq_handler, 0, 0);
 	irq_enable(PWM1_IRQn);
 }
-#define PWM_BUF_LENGTH 2000
 
 //static nrf_pwm_values_common_t *next_buf;
 // This array cannot be allocated on stack (hence "static") and it must be in RAM 

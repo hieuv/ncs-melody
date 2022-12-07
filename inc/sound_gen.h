@@ -10,14 +10,14 @@
 #define SG_SAMPLES_PR_MS 31
 
 typedef struct {
-	int a;
-	int d;
-	int s;
-	int r;
-	int result;
+	float a;
+	float d;
+	float s;
+	float r;
+	float result;
 } sg_adsr_t;
 
-typedef int32_t (*osc_gen_func_t)(struct sg_osc_state_t *state);
+typedef float (*osc_gen_func_t)(struct sg_osc_state_t *state);
 
 typedef struct {
 	bool used;
@@ -29,6 +29,9 @@ typedef struct {
 	float amplitude;
 	float frequency;
 	float val;
+
+	// Instrument variables
+	float global_amplitude;
 	sg_adsr_t adsr;
 	osc_gen_func_t func;
 } sg_osc_state_t;

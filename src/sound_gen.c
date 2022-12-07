@@ -3,7 +3,7 @@
 
 static sg_osc_state_t m_osc_list[NUM_OSCILLATORS];
 
-int16_t sin_table[256];
+float sin_table[256];
 
 static sg_osc_state_t *alloc_oscillator(void)
 {
@@ -16,34 +16,35 @@ static sg_osc_state_t *alloc_oscillator(void)
 	return 0;
 } 
 
-static int32_t gen_func_sinus(sg_osc_state_t *state)
+static float gen_func_sinus(sg_osc_state_t *state)
 {
-	return (((int32_t)sin_table[state->phase_i >> 8]/2)*state->adsr.result);
+	return sin_table[state->phase_i >> 8];
 }
 
-static int32_t gen_func_square(sg_osc_state_t *state)
+static float gen_func_square(sg_osc_state_t *state)
 {
-	if(state->phase_i > 0x8000) return state->adsr.result * 0x0FFF;
-	else return -(state->adsr.result * 0x0FFF);
+	if(state->phase_i > 0x8000) return 1.0f;
+	else return -1.0f;
 }
 
-static int32_t gen_func_sawtooth(sg_osc_state_t *state)
+static float gen_func_sawtooth(sg_osc_state_t *state)
 {
-	return (((int32_t)state->phase_i - 0x8000)/4) * state->adsr.result;
+	return ((float)state->phase_i / 32768.0f) - 1.0f;
 }
 
 static bool run_adsr_comp(sg_adsr_t *adsr, uint32_t t)
 {
-	static uint32_t tmp;
-	if(t < adsr->a) {
-		adsr->result = t * 65536 / adsr->a;
-	} else if(t < adsr->s) {
-		adsr->result = 65535;
-	} else if(t < (adsr->s + adsr->r)){
-		tmp = (t - adsr->s);
-		adsr->result = (adsr->r - (t - adsr->s)) * 65535 / adsr->r;
+	static float tmp;
+	float tf = (float)t;
+	if(tf < adsr->a) {
+		adsr->result = tf / adsr->a;
+	} else if(tf < adsr->s) {
+		adsr->result = 1.0f;
+	} else if(tf < (adsr->s + adsr->r)){
+		tmp = (tf - adsr->s);
+		adsr->result = (adsr->r - (tf - adsr->s)) / adsr->r;
 	} else {
-		adsr->result = 0;
+		adsr->result = 0.0f;
 		return true;
 	}
 	return false;
@@ -53,19 +54,17 @@ void sg_fill_buffer(nrf_pwm_values_common_t *dst_ptr, int num)
 {
 	sg_osc_state_t *osc;
 	int active_oscillators = 0;
-	for(int i = 0; i < num; i++) dst_ptr[i] = 0x8000;
+	for(int i = 0; i < num; i++) dst_ptr[i] = 127;
+	float result;
 	for(int osc_index = 0; osc_index < NUM_OSCILLATORS; osc_index++) {
 		if(m_osc_list[osc_index].used) {
 			active_oscillators++;
 			osc = &m_osc_list[osc_index];
 			for(int i = 0; i < num; i++) {
-				//dst_ptr[i] = (uint16_t)((cosf(osc->t*osc->frequency*6.28f)+1.0f)*127.0f*osc->amplitude);
-				//osc->t += 1.0f/31250.0f;
-				//dst_ptr[i] = ((int32_t)sin_table[osc->phase_i >> 8]*osc->adsr.result) / 0x1000000 + 0x8000;
-				dst_ptr[i] += osc->func(osc) / 0x10000 + 0x8000;
+				result = osc->func(osc)*osc->adsr.result;
+				dst_ptr[i] = (uint16_t)((result + 1.0f) * 127.0f);
 				osc->t_i++;
-				osc->phase_i += osc->phase_diff_i;
-				osc->phase_i &= 0xFFFF;
+				osc->phase_i = (osc->phase_i + osc->phase_diff_i) & 0xFFFF;
 				if((i%SG_ADSR_SUBDIV) == 0) {
 					if(run_adsr_comp(&osc->adsr, osc->t_i / SG_SAMPLES_PR_MS)) {
 						osc->used = false;
@@ -78,6 +77,7 @@ void sg_fill_buffer(nrf_pwm_values_common_t *dst_ptr, int num)
 	}
 	if(active_oscillators == 0) {
 		
+	} else {
 	}
 }
 
@@ -97,7 +97,7 @@ void sg_play_note(float frequency, float amp, int instrument_index)
 				new_osc->adsr.d = 100;
 				new_osc->adsr.s = 300;
 				new_osc->adsr.r = 1000;
-				new_osc->func = gen_func_sinus;
+				new_osc->func = gen_func_sawtooth;
 				break;
 			case 1:
 				new_osc->adsr.a = 50;
@@ -119,6 +119,6 @@ void sg_init(void)
 		m_osc_list[i].used = false;
 	}
 	for(int i = 0; i < 256; i++) {
-		sin_table[i] = (int16_t)((sinf(PI * 2.0f * (float)i / 256.0f)) * 32767.0f);
+		sin_table[i] = sinf(PI * 2.0f * (float)i / 256.0f);
 	}
 }
