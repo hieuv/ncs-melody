@@ -123,13 +123,11 @@ void main(void)
 
 void thread_play_notes_func(void)
 {
-	float freq = 50.0f;
+	int counter = 0;
 	while(1) {
-		sg_play_note(freq, 1.0f, 0);
-		//sg_play_note(freq*2.0f, 1.0f, 0);
-		freq *= 2.0f;
-		if(freq > 10000.0f) freq = 50.0f;
-		k_msleep(3000);
+		printk("%i\n", counter);
+		if(sg_play_note(counter++, 1.0f, 0) < 0) counter = 0;
+		k_msleep(500);
 	}
 }
 

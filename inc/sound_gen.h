@@ -9,6 +9,11 @@
 #define SG_SAMPLE_FREQ 31250
 #define SG_SAMPLES_PR_MS 31
 
+#define NUM_OCTAVES 7
+#define NOTES_PR_OCTAVE 12
+#define OCTAVE_0_START_FREQ 55.0f
+#define HALF_NOTE_FACTOR 1.05946309f
+
 typedef struct {
 	float a;
 	float d;
@@ -44,7 +49,8 @@ void sg_init();
 
 void sg_fill_buffer(nrf_pwm_values_common_t *dst_ptr, int num);
 
-void sg_play_note(float frequency, float amp, int instrument_index);
+void sg_play_freq(float frequency, float amp, int instrument_index);
 
+int sg_play_note(int note_index, float amp, int instrument_index);
 
 #endif
