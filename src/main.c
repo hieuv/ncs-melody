@@ -9,6 +9,7 @@
 #include <nrfx_pwm.h>
 #include <sound_gen.h>
 #include <math.h>
+#include <music.h>
 
 /* 1000 msec = 1 sec */
 #define SLEEP_TIME_MS   1000
@@ -123,11 +124,9 @@ void main(void)
 
 void thread_play_notes_func(void)
 {
-	int counter = 0;
 	while(1) {
-		printk("%i\n", counter);
-		if(sg_play_note(counter++, 1.0f, 0) < 0) counter = 0;
-		k_msleep(500);
+		music_play_song(&song_god_rest_ye_gentlemen);
+		k_msleep(10000);
 	}
 }
 

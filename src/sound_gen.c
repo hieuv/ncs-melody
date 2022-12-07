@@ -101,17 +101,17 @@ void sg_play_freq(float frequency, float amp, int instrument_index)
 				new_osc->adsr.a = 50;
 				new_osc->adsr.d = 100;
 				new_osc->adsr.s = 100;
-				new_osc->adsr.r = 500;
-				new_osc->global_amplitude = 0.5f;
+				new_osc->adsr.r = 200;
+				new_osc->global_amplitude = 0.7f;
 				new_osc->func = gen_func_sinus;
 				break;
 			case 1:
 				new_osc->adsr.a = 50;
 				new_osc->adsr.d = 100;
-				new_osc->adsr.s = 300;
-				new_osc->adsr.r = 3000;
-				new_osc->global_amplitude = 0.8f;
-				new_osc->func = gen_func_sinus;
+				new_osc->adsr.s = 150;
+				new_osc->adsr.r = 300;
+				new_osc->global_amplitude = 0.4f;
+				new_osc->func = gen_func_sawtooth;
 				break;
 		}
 	}
