@@ -20,6 +20,7 @@
 #define NOTE(a,b) (a+b*12)
 #define NOTE_PAUSE 	100001
 #define NOTE_END	100002
+#define NOTE_REP	100003
 
 #define MAX_NOTE_LISTS 4
 
@@ -35,7 +36,8 @@ typedef struct {
 	int current_note_lifetime;
 	int instrument;
 	int note_offset;
-	music_notedef_t *note_list;
+	int repeat_counter;
+	const music_notedef_t *note_list;
 } music_notelist_t;
 
 typedef struct {
@@ -48,6 +50,6 @@ typedef struct {
 
 extern const music_songdef_t song_god_rest_ye_gentlemen;
 
-int music_play_song(music_songdef_t *song);
+int music_play_song(const music_songdef_t *song);
 
 #endif

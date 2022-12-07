@@ -1,4 +1,4 @@
-#include <music.h>;
+#include <music.h>
 #include <sound_gen.h>
 
 const music_notedef_t god_rest_ye_gentlemen_melody[] = {
@@ -23,7 +23,7 @@ const music_notedef_t god_rest_ye_gentlemen_melody[] = {
 
 const music_notedef_t god_rest_ye_gentlemen_bass[] = {
 	{NOTE_PAUSE, 4, 80},
-	{NOTE(N_C, 2), 8, 100},{NOTE(N_C, 2), 4, 100},{NOTE(N_C, 2), 4, 100},
+	{NOTE(N_D, 2), 8, 100},{NOTE(N_C, 3), 4, 100},{NOTE(N_E, 2), 4, 100},
 	{NOTE(N_C, 2), 8, 100},{NOTE(N_C, 2), 4, 100},{NOTE(N_G, 1), 4, 100},
 	{NOTE(N_Ab, 1), 4, 100},{NOTE(N_G, 1), 4, 100},{NOTE(N_C, 2), 4, 100},{NOTE(N_C, 2), 4, 100},
 	{NOTE(N_B, 1), 4, 100},{NOTE(N_G, 1), 4, 100},{NOTE(N_A, 1), 4, 100},{NOTE(N_B, 1), 4, 100},
@@ -60,16 +60,22 @@ const music_songdef_t song_god_rest_ye_gentlemen = {
 	.speed = 60,
 };
 
-int music_play_song(music_songdef_t *song)
+static void fetch_note(const music_songdef_t *song, music_notelist_t *notelist, const music_notedef_t *note)
 {
-	int time_index = 0;
+	if(note->note != NOTE_PAUSE) {
+		sg_play_note(note->note + notelist->note_offset, (float)note->amp / (float)song->max_amp, notelist->instrument);
+	}
+}
+
+int music_play_song(const music_songdef_t *song)
+{
 	int active_lists;
-	int note_list_indexes[MAX_NOTE_LISTS] = {0};
-	music_notedef_t *current_note[MAX_NOTE_LISTS], *note;
+	const music_notedef_t *current_note[MAX_NOTE_LISTS], *note;
 	printk("Playing song...\n");
 	for(int i = 0; i < song->num_note_lists; i++) {
 		song->note_lists[i]->active = true;
 		song->note_lists[i]->index = 0;
+		song->note_lists[i]->repeat_counter = 0;
 	}
 	do {
 		active_lists = 0;
@@ -80,11 +86,23 @@ int music_play_song(music_songdef_t *song)
 					note = current_note[nl] = &(song->note_lists[nl]->note_list[song->note_lists[nl]->index++]);
 					if(note->note == NOTE_END) {
 						song->note_lists[nl]->active = false;
+					} else if(note->note == NOTE_REP) {
+						if(++song->note_lists[nl]->repeat_counter <= note->duration) {
+							// Do another repeat, by reducing the note_list index
+							song->note_lists[nl]->index -= note->amp;
+							song->note_lists[nl]->current_note_lifetime = 1;
+							note = current_note[nl] =  &(song->note_lists[nl]->note_list[song->note_lists[nl]->index-1]);
+							fetch_note(song, song->note_lists[nl], note);
+						} else {
+							// Abort the repeat, and let the index increase as normal
+							song->note_lists[nl]->repeat_counter = 0;
+						}
 					} else {
 						printk("\nFetched note: note %i, dur %i amp %i, instr %i ", note->note, note->duration, note->amp, song->note_lists[nl]->instrument);
-						if(note->note != NOTE_PAUSE) {
+						fetch_note(song, song->note_lists[nl], note);
+						/*if(note->note != NOTE_PAUSE) {
 							sg_play_note(note->note + song->note_lists[nl]->note_offset, (float)note->amp / (float)song->max_amp, song->note_lists[nl]->instrument);
-						}
+						}*/
 						song->note_lists[nl]->current_note_lifetime = 1;
 					}
 				} else {
@@ -96,4 +114,5 @@ int music_play_song(music_songdef_t *song)
 		k_msleep(song->speed);
 	} while(active_lists > 0);
 	printk("Song completed\n");
+	return 0;
 }
