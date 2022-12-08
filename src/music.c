@@ -109,8 +109,8 @@ static char *music_string_parser(str_decode_context_t *context, music_notedef_t 
 static void fetch_note(const music_songdef_t *song, music_notelist_t *notelist, const music_notedef_t *note)
 {
 	if(note->note != NOTE_PAUSE) {
-		printk("\nFetched note: note %i, dur %i amp %i, instr %i ", note->note, note->duration, note->amp, notelist->instrument);
-		//sg_play_note(note->note + notelist->note_offset, (float)note->amp / (float)song->max_amp, notelist->instrument);
+		//printk("\nFetched note: note %i, dur %i amp %i, instr %i ", note->note, note->duration, note->amp, notelist->instrument);
+		sg_play_note(note->note + notelist->note_offset, (float)note->amp / (float)song->max_amp, notelist->instrument);
 	}
 }
 
