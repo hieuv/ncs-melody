@@ -11,9 +11,6 @@
 #include <math.h>
 #include <music.h>
 
-/* 1000 msec = 1 sec */
-#define SLEEP_TIME_MS   1000
-
 #define PWM_COUNTERTOP  255
 
 #define PWM_BUF_LENGTH 1000
@@ -29,12 +26,10 @@ void nrfx_pwm_handler(nrfx_pwm_evt_type_t event_type, void * p_context)
 		case NRFX_PWM_EVT_END_SEQ0:
 			buf_to_update_index = 0;
 			k_sem_give(&sem_update_pwm_buf);
-			//printk("0");
 			break;
 		case NRFX_PWM_EVT_END_SEQ1:
 			buf_to_update_index = 1;
 			k_sem_give(&sem_update_pwm_buf);
-			//printk("1");
 			break;
 		default:
 			break;
@@ -96,8 +91,6 @@ static void pwm_set_duty_cycle()
 
 void main(void)
 {
-	//int ret;
-
 	pwm_init();
 	
 	pwm_set_duty_cycle();
@@ -118,7 +111,6 @@ void main(void)
 			default:
 				break;
 		}
-		//sg_fill_buffer(buf_ptrs[buf_to_update_index], PWM_BUF_LENGTH);
 	}
 }
 
@@ -126,7 +118,7 @@ void thread_play_notes_func(void)
 {
 	while(1) {
 		music_play_song(&song_god_rest_ye_gentlemen);
-		k_msleep(1000000);
+		k_msleep(100000);
 	}
 }
 

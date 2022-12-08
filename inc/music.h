@@ -31,13 +31,21 @@ typedef struct {
 } music_notedef_t;
 
 typedef struct {
+	int octave_prev;
+	int length_prev;
+	int amp_prev;
+	char* str_pointer;
+} str_decode_context_t;
+
+typedef struct {
 	int index;
 	bool active;
 	int current_note_lifetime;
 	int instrument;
 	int note_offset;
 	int repeat_counter;
-	const music_notedef_t *note_list;
+	str_decode_context_t str_decode_context;
+	char *note_string;
 } music_notelist_t;
 
 typedef struct {
