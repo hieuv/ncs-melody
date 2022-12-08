@@ -2,6 +2,7 @@
 #define __MUSIC_H
 
 #include <zephyr/kernel.h>
+#include <sound_gen.h>
 
 #define N_C 0
 #define N_CS 1
@@ -42,7 +43,7 @@ typedef struct {
 	bool active;
 	bool mute;
 	int current_note_lifetime;
-	int instrument;
+	sg_instrument_t *instrument;
 	int note_offset;
 	int repeat_counter;
 	str_decode_context_t str_decode_context;

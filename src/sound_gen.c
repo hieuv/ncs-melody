@@ -19,23 +19,23 @@ static sg_osc_state_t *alloc_oscillator(void)
 	return 0;
 } 
 
-static float gen_func_sinus(sg_osc_state_t *state)
+float gen_func_sinus(sg_osc_state_t *state)
 {
 	return sin_table[state->phase_i >> 8];
 }
 
-static float gen_func_square(sg_osc_state_t *state)
+float gen_func_square(sg_osc_state_t *state)
 {
 	if(state->phase_i > 0x8000) return 1.0f;
 	else return -1.0f;
 }
 
-static float gen_func_sawtooth(sg_osc_state_t *state)
+float gen_func_sawtooth(sg_osc_state_t *state)
 {
 	return ((float)state->phase_i / 32768.0f) - 1.0f;
 }
 
-static float gen_func_noise(sg_osc_state_t *state)
+float gen_func_noise(sg_osc_state_t *state)
 {
 	return (float)(rand()%0x1000) *2.0f / (float)0x1000 - 1.0f;
 }
@@ -92,7 +92,7 @@ void sg_fill_buffer(nrf_pwm_values_common_t *dst_ptr, int num)
 	}
 }
 
-int sg_play_freq(float frequency, float amp, int instrument_index)
+int sg_play_freq(float frequency, float amp, sg_instrument_t *instr)
 {
 	sg_osc_state_t *new_osc = alloc_oscillator();
 	if(new_osc) {
@@ -102,43 +102,21 @@ int sg_play_freq(float frequency, float amp, int instrument_index)
 		new_osc->t_i = 0;
 		new_osc->phase_i = 0;
 		new_osc->phase_diff_i = (uint32_t)(frequency * 256.0f * 256.0f / (float)SG_SAMPLE_FREQ);
-		switch(instrument_index) {
-			case 0:
-				new_osc->adsr.a = 50;
-				new_osc->adsr.d = 100;
-				new_osc->adsr.s = 100;
-				new_osc->adsr.r = 200;
-				new_osc->global_amplitude = 0.7f;
-				new_osc->func = gen_func_sinus;
-				break;
-			case 1:
-				new_osc->adsr.a = 50;
-				new_osc->adsr.d = 100;
-				new_osc->adsr.s = 150;
-				new_osc->adsr.r = 300;
-				new_osc->global_amplitude = 0.4f;
-				new_osc->func = gen_func_sawtooth;
-				break;
-			case 2:
-				new_osc->adsr.a = 30;
-				new_osc->adsr.d = 100;
-				new_osc->adsr.s = 0;
-				new_osc->adsr.r = 120;
-				new_osc->global_amplitude = 0.3f;
-				new_osc->func = gen_func_noise;
-				break;
-			default:
-				return -1;
-		}
+		new_osc->adsr.a = instr->a;
+		new_osc->adsr.d = instr->d;
+		new_osc->adsr.s = instr->s;
+		new_osc->adsr.r = instr->r;
+		new_osc->global_amplitude = instr->amp_base;
+		new_osc->func = instr->osc_func;
 		return 0;
 	}
 	return -1;
 }
 
-int sg_play_note(int note_index, float amp, int instrument_index)
+int sg_play_note(int note_index, float amp, sg_instrument_t *instr)
 {
 	if(note_index >= (NUM_OCTAVES*NOTES_PR_OCTAVE)) return -1;
-	return sg_play_freq(note_table[note_index], amp, instrument_index);
+	return sg_play_freq(note_table[note_index], amp, instr);
 }
 
 #define PI 3.14159265358979f

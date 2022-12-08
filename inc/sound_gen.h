@@ -45,12 +45,26 @@ typedef struct {
 	osc_gen_func_t gen_func;
 } sg_oscillator_t;
 
+typedef struct {
+	float a, d, s, r;
+	float amp_base;
+	osc_gen_func_t osc_func;
+} sg_instrument_t;
+
+float gen_func_sinus(sg_osc_state_t *state);
+
+float gen_func_square(sg_osc_state_t *state);
+
+float gen_func_sawtooth(sg_osc_state_t *state);
+
+float gen_func_noise(sg_osc_state_t *state);
+
 void sg_init();
 
 void sg_fill_buffer(nrf_pwm_values_common_t *dst_ptr, int num);
 
-int sg_play_freq(float frequency, float amp, int instrument_index);
+int sg_play_freq(float frequency, float amp, sg_instrument_t *instr);
 
-int sg_play_note(int note_index, float amp, int instrument_index);
+int sg_play_note(int note_index, float amp, sg_instrument_t *instr);
 
 #endif
