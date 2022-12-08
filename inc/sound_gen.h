@@ -1,7 +1,7 @@
 #ifndef __SOUND_GEN_H
 #define __SOUND_GEN_H
 
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 #include <nrfx_pwm.h>
 
 #define NUM_OSCILLATORS 16
@@ -49,7 +49,7 @@ void sg_init();
 
 void sg_fill_buffer(nrf_pwm_values_common_t *dst_ptr, int num);
 
-void sg_play_freq(float frequency, float amp, int instrument_index);
+int sg_play_freq(float frequency, float amp, int instrument_index);
 
 int sg_play_note(int note_index, float amp, int instrument_index);
 

@@ -1,7 +1,7 @@
 #ifndef __MUSIC_H
 #define __MUSIC_H
 
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 
 #define N_C 0
 #define N_CS 1

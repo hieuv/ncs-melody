@@ -1,5 +1,6 @@
 #include <sound_gen.h>
 #include <math.h>
+#include <stdlib.h>
 
 static sg_osc_state_t m_osc_list[NUM_OSCILLATORS];
 
@@ -91,7 +92,7 @@ void sg_fill_buffer(nrf_pwm_values_common_t *dst_ptr, int num)
 	}
 }
 
-void sg_play_freq(float frequency, float amp, int instrument_index)
+int sg_play_freq(float frequency, float amp, int instrument_index)
 {
 	sg_osc_state_t *new_osc = alloc_oscillator();
 	if(new_osc) {
@@ -126,14 +127,18 @@ void sg_play_freq(float frequency, float amp, int instrument_index)
 				new_osc->global_amplitude = 0.3f;
 				new_osc->func = gen_func_noise;
 				break;
+			default:
+				return -1;
 		}
+		return 0;
 	}
+	return -1;
 }
 
 int sg_play_note(int note_index, float amp, int instrument_index)
 {
 	if(note_index >= (NUM_OCTAVES*NOTES_PR_OCTAVE)) return -1;
-	sg_play_freq(note_table[note_index], amp, instrument_index);
+	return sg_play_freq(note_table[note_index], amp, instrument_index);
 }
 
 #define PI 3.14159265358979f

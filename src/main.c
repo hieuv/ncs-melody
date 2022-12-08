@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <zephyr/zephyr.h>
+#include <zephyr/kernel.h>
 //#include <zephyr/drivers/gpio.h>
 #include <nrfx_pwm.h>
 #include <sound_gen.h>
@@ -78,7 +78,7 @@ static void pwm_set_duty_cycle()
 
     static nrf_pwm_sequence_t const seq =
     {
-        .values.p_common = &seq_values,
+        .values.p_common = (const nrf_pwm_values_common_t*)&seq_values,
         .length          = PWM_BUF_LENGTH,
         .repeats         = 1,
         .end_delay       = 0
@@ -86,7 +86,7 @@ static void pwm_set_duty_cycle()
 
 	static nrf_pwm_sequence_t const seq2 =
     {
-        .values.p_common = &seq_values_b,
+        .values.p_common = (const nrf_pwm_values_common_t*)&seq_values_b,
         .length          = PWM_BUF_LENGTH,
         .repeats         = 1,
         .end_delay       = 0
