@@ -9,7 +9,7 @@
 #include <nrfx_pwm.h>
 #include <sound_gen.h>
 #include <math.h>
-#include <music.h>
+#include <songs.h>
 
 #define PWM_COUNTERTOP  255
 

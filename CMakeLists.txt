@@ -5,4 +5,4 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(blinky)
 
 target_include_directories(app PRIVATE inc/)
-target_sources(app PRIVATE src/main.c src/sound_gen.c src/music.c)
+target_sources(app PRIVATE src/main.c src/sound_gen.c src/music.c src/song_god_rest_ye.c)
