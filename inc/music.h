@@ -40,6 +40,7 @@ typedef struct {
 typedef struct {
 	int index;
 	bool active;
+	bool mute;
 	int current_note_lifetime;
 	int instrument;
 	int note_offset;
