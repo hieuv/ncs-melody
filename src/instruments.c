@@ -6,7 +6,16 @@ sg_instrument_t instr_lead1 = {
     .s = 100,
     .r = 200,
     .amp_base = 0.7f,
-    .osc_func = gen_func_sinus,
+    .osc_func = gen_func_square,
+};
+
+sg_instrument_t instr_lead1_long = {
+    .a = 250,
+    .d = 1000,
+    .s = 500,
+    .r = 500,
+    .amp_base = 0.7f,
+    .osc_func = gen_func_sawtooth,
 };
 
 sg_instrument_t instr_bass1 = {

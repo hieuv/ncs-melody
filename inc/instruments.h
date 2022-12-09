@@ -5,6 +5,7 @@
 #include <sound_gen.h>
 
 extern sg_instrument_t instr_lead1;
+extern sg_instrument_t instr_lead1_long;
 extern sg_instrument_t instr_bass1;
 extern sg_instrument_t instr_drum_snare;
 

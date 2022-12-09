@@ -117,8 +117,10 @@ void main(void)
 void thread_play_notes_func(void)
 {
 	while(1) {
+		music_play_song(&song_holy_night);
+		k_msleep(10000);
 		music_play_song(&song_god_rest_ye_gentlemen);
-		k_msleep(1000000);
+		k_msleep(10000);
 	}
 }
 
