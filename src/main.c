@@ -1,15 +1,11 @@
-/*
- * Copyright (c) 2016 Intel Corporation
- *
- * SPDX-License-Identifier: Apache-2.0
- */
 
+#include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/kernel.h>
-//#include <zephyr/drivers/gpio.h>
 #include <nrfx_pwm.h>
 #include <sound_gen.h>
 #include <math.h>
 #include <songs.h>
+#include <errno.h>
 
 #include <hal/nrf_gpiote.h>
 #include <hal/nrf_gpio.h>
@@ -26,6 +22,13 @@
 #define PWM_PIN NRF_GPIO_PIN_MAP(1, 15)
 
 K_SEM_DEFINE(sem_update_pwm_buf, 0, 1);
+
+static const struct bt_data ad[] = {
+	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
+	BT_DATA_BYTES(BT_DATA_UUID128_ALL,
+		      0x84, 0xaa, 0x60, 0x74, 0x52, 0x8a, 0x8b, 0x86,
+		      0xd3, 0x4c, 0xb7, 0x1d, 0x1d, 0xdc, 0x53, 0x8d),
+};
 
 static nrfx_pwm_t my_pwm = NRFX_PWM_INSTANCE(1);
 static int buf_to_update_index;
@@ -101,9 +104,22 @@ static void pwm_set_duty_cycle()
 
 int main(void)
 {
-	pwm_init();
+	int err;
 	
+	pwm_init();
 	pwm_set_duty_cycle();
+
+	err = bt_enable(NULL);
+	if (err) {
+		printk("ERROR bt_enable %d", err);
+		while (1) { /* spin */ };
+	}
+
+	err = bt_le_adv_start(BT_LE_ADV_CONN_NAME, ad, ARRAY_SIZE(ad), NULL, 0);
+	if (err) {
+		printk("ERROR bt_le_adv_start %d", err);
+		while (1) { /* spin */ };
+	}
 
 	printk("Hello\n");
 
@@ -128,12 +144,7 @@ int main(void)
 
 void thread_play_notes_func(void)
 {
-	while(1) {
-		music_play_song(&song_holy_night);
-		k_msleep(10000);
-		music_play_song(&song_god_rest_ye_gentlemen);
-		k_msleep(10000);
-	}
+	music_play_song(&song_holy_night);
 }
 
 K_THREAD_DEFINE(thread_play_notes, 1024, thread_play_notes_func, 0, 0, 0, K_LOWEST_APPLICATION_THREAD_PRIO, 0, 100); 
