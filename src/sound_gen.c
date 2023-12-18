@@ -64,7 +64,7 @@ void sg_fill_buffer(nrf_pwm_values_common_t *dst_ptr, int num)
 	static float tmp_res_buf[1000];
 	int active_oscillators = 0;
 	for(int i = 0; i < num; i++) tmp_res_buf[i] = 0.0f;
-	float result;
+	// float result;
 	for(int osc_index = 0; osc_index < NUM_OSCILLATORS; osc_index++) {
 		if(m_osc_list[osc_index].used) {
 			active_oscillators++;

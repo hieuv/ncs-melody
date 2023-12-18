@@ -7,7 +7,7 @@ const int str_keywords_index[] = {0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,      
 const char *str_keywords[] = {"c", "cs", "db", "d", "eb", "e", "f", "gb", "g", "ab", "a", "bb", "b",    "p",         "end"};
 #define STR_KEYWORD_LIST_LEN (sizeof(str_keywords) / sizeof(str_keywords[0]))
 
-static char *parse_number(char *string, int *number)
+static const unsigned char *parse_number(const unsigned char *string, int *number)
 {
 	*number = 0;
 	while(isdigit(*string)) {
@@ -18,10 +18,10 @@ static char *parse_number(char *string, int *number)
 	return string;
 }
 
-static char *music_string_parser(str_decode_context_t *context, music_notedef_t *note)
+static const unsigned char *music_string_parser(str_decode_context_t *context, music_notedef_t *note)
 {
-	char *string = context->str_pointer;
-	char keyword[16];
+	const unsigned char *string = context->str_pointer;
+	unsigned char keyword[16];
 	int i, k, octave, length, amp;
 	
 	// Check for end of string
@@ -103,7 +103,7 @@ int music_play_song(music_songdef_t *song)
 			if(song->note_lists[nl].active) {
 				if(song->note_lists[nl].index == 0 || song->note_lists[nl].current_note_lifetime >= current_note[nl].duration) {
 					// Fetch a new note
-					char *next_ptr = music_string_parser(&(song->note_lists[nl].str_decode_context), &note);
+					const unsigned char *next_ptr = music_string_parser(&(song->note_lists[nl].str_decode_context), &note);
 					song->note_lists[nl].index++;
 					if(next_ptr == 0 || song->note_lists[nl].mute) {
 						song->note_lists[nl].active = false;

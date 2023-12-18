@@ -89,7 +89,7 @@ static void pwm_set_duty_cycle()
 	nrfx_pwm_complex_playback(&my_pwm, &seq, &seq2, 1, NRFX_PWM_FLAG_SIGNAL_END_SEQ0 | NRFX_PWM_FLAG_SIGNAL_END_SEQ1 | NRFX_PWM_FLAG_LOOP);
 }
 
-void main(void)
+int main(void)
 {
 	pwm_init();
 	
@@ -112,6 +112,8 @@ void main(void)
 				break;
 		}
 	}
+
+	return 0;
 }
 
 void thread_play_notes_func(void)

@@ -14,6 +14,9 @@
 #define OCTAVE_0_START_FREQ 55.0f
 #define HALF_NOTE_FACTOR 1.05946309f
 
+struct sg_osc_state_s;
+typedef struct og_osc_state_s sg_osc_state_t;
+
 typedef struct {
 	float a;
 	float d;
@@ -22,9 +25,9 @@ typedef struct {
 	float result;
 } sg_adsr_t;
 
-typedef float (*osc_gen_func_t)(struct sg_osc_state_t *state);
+typedef float (*osc_gen_func_t)(sg_osc_state_t *state);
 
-typedef struct {
+struct og_osc_state_s {
 	bool used;
 	float t;
 	uint32_t t_i;
@@ -39,7 +42,7 @@ typedef struct {
 	float global_amplitude;
 	sg_adsr_t adsr;
 	osc_gen_func_t func;
-} sg_osc_state_t;
+};
 
 typedef struct {
 	osc_gen_func_t gen_func;
