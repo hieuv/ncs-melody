@@ -11,9 +11,19 @@
 #include <math.h>
 #include <songs.h>
 
+#include <hal/nrf_gpiote.h>
+#include <hal/nrf_gpio.h>
+
+#ifndef CONFIG_BOARD_THINGY53_NRF5340_CPUAPP
+#warning "This project was made for the thingy53_nrf5340_cpuapp target. Please perform necessary updates for other targets"
+#endif
+
 #define PWM_COUNTERTOP  255
 
 #define PWM_BUF_LENGTH 1000
+
+// Thingy53 Buzzer pin
+#define PWM_PIN NRF_GPIO_PIN_MAP(1, 15)
 
 K_SEM_DEFINE(sem_update_pwm_buf, 0, 1);
 
@@ -42,7 +52,7 @@ static int pwm_init(void)
     {
         .output_pins =
         {
-            0,						// channel 0
+            PWM_PIN,				// channel 0
             NRFX_PWM_PIN_NOT_USED,	// channel 1
             NRFX_PWM_PIN_NOT_USED,	// channel 2
             NRFX_PWM_PIN_NOT_USED	// channel 3
