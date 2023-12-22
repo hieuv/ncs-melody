@@ -31,8 +31,6 @@ K_EVENT_DEFINE(music_ctrl_evts);
 #define MUSIC_CTRL_EVTS_STOP_BIT	((uint32_t) 0x01U << 1)
 #define MUSIC_CTRL_EVTS_ALL_BITS	(MUSIC_CTRL_EVTS_START_BIT | MUSIC_CTRL_EVTS_STOP_BIT)
 
-struct k_work play_music_work;
-
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
 	BT_DATA_BYTES(BT_DATA_UUID128_ALL,
