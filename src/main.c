@@ -29,6 +29,7 @@ K_SEM_DEFINE(sem_update_pwm_buf, 0, 1);
 K_EVENT_DEFINE(music_ctrl_evts);
 #define MUSIC_CTRL_EVTS_START_BIT	((uint32_t) 0x01U << 0)
 #define MUSIC_CTRL_EVTS_STOP_BIT	((uint32_t) 0x01U << 1)
+#define MUSIC_CTRL_EVTS_ALL_BITS	(MUSIC_CTRL_EVTS_START_BIT | MUSIC_CTRL_EVTS_STOP_BIT)
 
 struct k_work play_music_work;
 
@@ -186,22 +187,22 @@ int main(void)
 void thread_play_notes_func(void)
 {
 	while (1) {
-		volatile uint32_t start_event = 0;
-		volatile uint32_t stop_event = 0;
+		volatile uint32_t evts= 0;
 		static volatile bool is_playing = false;
 		
-		start_event = k_event_wait(&music_ctrl_evts, MUSIC_CTRL_EVTS_START_BIT, false, K_MSEC(10));
-		if (start_event != 0) {
-			is_playing = true;
-			}
+		evts = k_event_wait(&music_ctrl_evts, MUSIC_CTRL_EVTS_ALL_BITS, false, K_MSEC(10));
 		
-		if (is_playing) {
-			music_play_song(&song_holy_night);
+		if ((evts & MUSIC_CTRL_EVTS_START_BIT) != 0) {
+			is_playing = true;
+		}
+		if ((evts & MUSIC_CTRL_EVTS_STOP_BIT) != 0) {
+			is_playing = false;
 		}
 
-		stop_event = k_event_wait(&music_ctrl_evts, MUSIC_CTRL_EVTS_STOP_BIT, true, K_MSEC(10));
-		if (stop_event != 0) {
-			is_playing = false;
+		k_event_clear(&music_ctrl_evts, MUSIC_CTRL_EVTS_ALL_BITS);
+
+		if (is_playing) {
+			music_play_song(&song_holy_night);
 		}
 	}
 }
