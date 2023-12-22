@@ -104,11 +104,14 @@ static void pwm_set_duty_cycle()
     };
 	nrfx_pwm_complex_playback(&my_pwm, &seq, &seq2, 1, NRFX_PWM_FLAG_SIGNAL_END_SEQ0 | NRFX_PWM_FLAG_SIGNAL_END_SEQ1 | NRFX_PWM_FLAG_LOOP);
 }
- 
+
+extern volatile bool stop_playing_flag;
+
 static int cmd_stop(
 	const struct shell *shell, size_t argc, char *argv[])
 {
-    shell_fprintf(shell, SHELL_NORMAL, "TODO: Stop command\n");
+    shell_fprintf(shell, SHELL_NORMAL, "ACK music_box stop\n");
+	stop_playing_flag = true;
     return 0;
 }
  
@@ -152,8 +155,6 @@ int main(void)
 		while (1) { /* spin */ };
 	}
 
-	// custom_shell_commands_init();
-
 	printk("Hello\n");
 
 	sg_init();
@@ -177,8 +178,7 @@ int main(void)
 
 void thread_play_notes_func(void)
 {
-	// music_play_song(&song_holy_night);
-	music_play_song(&song_boot_tune);
+	music_play_song(&song_holy_night);
 }
 
 K_THREAD_DEFINE(thread_play_notes, 1024, thread_play_notes_func, 0, 0, 0, K_LOWEST_APPLICATION_THREAD_PRIO, 0, 100); 

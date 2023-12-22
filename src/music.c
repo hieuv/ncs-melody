@@ -7,6 +7,8 @@ const int str_keywords_index[] = {0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,      
 const char *str_keywords[] = {"c", "cs", "db", "d", "eb", "e", "f", "gb", "g", "ab", "a", "bb", "b",    "p",         "end"};
 #define STR_KEYWORD_LIST_LEN (sizeof(str_keywords) / sizeof(str_keywords[0]))
 
+volatile bool stop_playing_flag = false;
+
 static const unsigned char *parse_number(const unsigned char *string, int *number)
 {
 	*number = 0;
@@ -100,6 +102,7 @@ int music_play_song(music_songdef_t *song)
 	do {
 		active_lists = 0;
 		for(int nl = 0; nl < song->num_note_lists; nl++) {
+			if (stop_playing_flag) break;
 			if(song->note_lists[nl].active) {
 				if(song->note_lists[nl].index == 0 || song->note_lists[nl].current_note_lifetime >= current_note[nl].duration) {
 					// Fetch a new note
@@ -119,8 +122,10 @@ int music_play_song(music_songdef_t *song)
 				active_lists++;
 			}
 		}
+		if (stop_playing_flag) break;
 		k_msleep(song->speed);
 	} while(active_lists > 0);
+	stop_playing_flag = false;
 	printk("Song completed\n");
 	return 0;
 }
