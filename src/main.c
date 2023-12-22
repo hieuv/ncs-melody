@@ -1,14 +1,17 @@
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/kernel.h>
-#include <nrfx_pwm.h>
-#include <sound_gen.h>
-#include <math.h>
-#include <songs.h>
+#include <zephyr/shell/shell.h>
 #include <errno.h>
 
 #include <hal/nrf_gpiote.h>
 #include <hal/nrf_gpio.h>
+#include <nrfx_pwm.h>
+
+#include <sound_gen.h>
+#include <songs.h>
+
+#include <math.h>
 
 #ifndef CONFIG_BOARD_THINGY53_NRF5340_CPUAPP
 #warning "This project was made for the thingy53_nrf5340_cpuapp target. Please perform necessary updates for other targets"
@@ -101,6 +104,34 @@ static void pwm_set_duty_cycle()
     };
 	nrfx_pwm_complex_playback(&my_pwm, &seq, &seq2, 1, NRFX_PWM_FLAG_SIGNAL_END_SEQ0 | NRFX_PWM_FLAG_SIGNAL_END_SEQ1 | NRFX_PWM_FLAG_LOOP);
 }
+ 
+static int cmd_stop(
+	const struct shell *shell, size_t argc, char *argv[])
+{
+    shell_fprintf(shell, SHELL_NORMAL, "TODO: Stop command\n");
+    return 0;
+}
+ 
+static int cmd_play(
+	const struct shell *shell, size_t argc, char *argv[])
+{
+    shell_fprintf(shell, SHELL_NORMAL, "TODO: Play command\n");
+    return 0;
+}
+ 
+SHELL_STATIC_SUBCMD_SET_CREATE(
+	music_box_cmds,
+	SHELL_CMD(play, NULL,
+		"usage example:\n$ music_box play\n",
+		cmd_play),
+	SHELL_CMD(stop, NULL,
+		"usage example:\n$ music_box stop\n",
+		cmd_stop),
+	SHELL_SUBCMD_SET_END
+	);
+
+SHELL_CMD_REGISTER(music_box, &music_box_cmds, "Control Music Box", NULL);
+
 
 int main(void)
 {
@@ -120,6 +151,8 @@ int main(void)
 		printk("ERROR bt_le_adv_start %d", err);
 		while (1) { /* spin */ };
 	}
+
+	// custom_shell_commands_init();
 
 	printk("Hello\n");
 
@@ -144,7 +177,8 @@ int main(void)
 
 void thread_play_notes_func(void)
 {
-	music_play_song(&song_holy_night);
+	// music_play_song(&song_holy_night);
+	music_play_song(&song_boot_tune);
 }
 
 K_THREAD_DEFINE(thread_play_notes, 1024, thread_play_notes_func, 0, 0, 0, K_LOWEST_APPLICATION_THREAD_PRIO, 0, 100); 
