@@ -26,6 +26,10 @@
 
 K_SEM_DEFINE(sem_update_pwm_buf, 0, 1);
 
+K_EVENT_DEFINE(music_ctrl_evts);
+#define MUSIC_CTRL_EVTS_START_BIT	((uint32_t) 0x01U << 0)
+#define MUSIC_CTRL_EVTS_STOP_BIT	((uint32_t) 0x01U << 1)
+
 struct k_work play_music_work;
 
 static const struct bt_data ad[] = {
@@ -113,14 +117,16 @@ static int cmd_stop(
 	const struct shell *shell, size_t argc, char *argv[])
 {
     shell_fprintf(shell, SHELL_NORMAL, "ACK music_box stop\n");
+	k_event_post(&music_ctrl_evts, MUSIC_CTRL_EVTS_STOP_BIT);
 	stop_playing_flag = true;
-    return 0;
+	return 0;
 }
  
 static int cmd_play(
 	const struct shell *shell, size_t argc, char *argv[])
 {
-    shell_fprintf(shell, SHELL_NORMAL, "TODO: Play command\n");
+	shell_fprintf(shell, SHELL_NORMAL, "ACK music_box play\n");
+	k_event_post(&music_ctrl_evts, MUSIC_CTRL_EVTS_START_BIT);
     return 0;
 }
  
@@ -136,11 +142,6 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 	);
 
 SHELL_CMD_REGISTER(music_box, &music_box_cmds, "Control Music Box", NULL);
-
-void play_notes_func(struct k_work* work_item)
-{
-	music_play_song(&song_holy_night);
-}
 
 int main(void)
 {
@@ -160,9 +161,6 @@ int main(void)
 		printk("ERROR bt_le_adv_start %d", err);
 		while (1) { /* spin */ };
 	}
-
-	k_work_init(&play_music_work, play_notes_func);
-	k_work_submit(&play_music_work);
 
 	printk("Hello\n");
 
@@ -184,3 +182,29 @@ int main(void)
 
 	return 0;
 }
+
+void thread_play_notes_func(void)
+{
+	while (1) {
+		volatile uint32_t start_event = 0;
+		volatile uint32_t stop_event = 0;
+		static volatile bool is_playing = false;
+		
+		start_event = k_event_wait(&music_ctrl_evts, MUSIC_CTRL_EVTS_START_BIT, false, K_MSEC(10));
+		if (start_event != 0) {
+			is_playing = true;
+			}
+		
+		if (is_playing) {
+			music_play_song(&song_holy_night);
+		}
+
+		stop_event = k_event_wait(&music_ctrl_evts, MUSIC_CTRL_EVTS_STOP_BIT, true, K_MSEC(10));
+		if (stop_event != 0) {
+			is_playing = false;
+		}
+	}
+}
+
+K_THREAD_DEFINE(thread_play_notes, 1024, thread_play_notes_func, 0, 0, 0, K_LOWEST_APPLICATION_THREAD_PRIO, 0, 100); 
+
