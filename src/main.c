@@ -202,7 +202,18 @@ void thread_play_notes_func(void)
 		k_event_clear(&music_ctrl_evts, MUSIC_CTRL_EVTS_ALL_BITS);
 
 		if (is_playing) {
-			music_play_song(&song_holy_night);
+			static music_songdef_t* playlist[] = {
+				&song_santa_claus_is_coming_to_town,
+				&song_paa_laaven_sitter_nissen,
+				&song_holy_night,
+				&song_god_rest_ye_gentlemen
+			};
+			static size_t playlist_play_idx = 0;
+			music_play_song(playlist[playlist_play_idx]);
+			playlist_play_idx++;
+			if (playlist_play_idx >= (sizeof(playlist) / sizeof(music_songdef_t*))) {
+				playlist_play_idx = 0;
+			}
 		}
 	}
 }

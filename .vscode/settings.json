@@ -1,0 +1,11 @@
+{
+    "nrf-connect.topdir": "${nrf-connect.sdk:2.4.2}",
+    "nrf-connect.toolchain.path": "${nrf-connect.toolchain:2.4.2}",
+    "files.associations": {
+        "bluetooth.h": "c",
+        "instruments.h": "c",
+        "songs.h": "c",
+        "errno.h": "c",
+        "algorithm": "c"
+    }
+}
