@@ -26,6 +26,8 @@
 
 K_SEM_DEFINE(sem_update_pwm_buf, 0, 1);
 
+struct k_work play_music_work;
+
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
 	BT_DATA_BYTES(BT_DATA_UUID128_ALL,
@@ -135,6 +137,10 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 
 SHELL_CMD_REGISTER(music_box, &music_box_cmds, "Control Music Box", NULL);
 
+void play_notes_func(struct k_work* work_item)
+{
+	music_play_song(&song_holy_night);
+}
 
 int main(void)
 {
@@ -154,6 +160,9 @@ int main(void)
 		printk("ERROR bt_le_adv_start %d", err);
 		while (1) { /* spin */ };
 	}
+
+	k_work_init(&play_music_work, play_notes_func);
+	k_work_submit(&play_music_work);
 
 	printk("Hello\n");
 
@@ -175,10 +184,3 @@ int main(void)
 
 	return 0;
 }
-
-void thread_play_notes_func(void)
-{
-	music_play_song(&song_holy_night);
-}
-
-K_THREAD_DEFINE(thread_play_notes, 1024, thread_play_notes_func, 0, 0, 0, K_LOWEST_APPLICATION_THREAD_PRIO, 0, 100); 
